@@ -76,21 +76,6 @@
     <div class="presets" id="presets"></div>
 
     <div class="divider"></div>
-    <span class="panel-title">Typography</span>
-    <div class="ctrl"><div class="ctrl-head"><span class="ctrl-name">Font Size</span><span class="ctrl-val" id="fsVal">10</span></div><input type="range" id="fs" min="5" max="18" value="10" step="1"></div>
-    <div class="ctrl"><div class="ctrl-head"><span class="ctrl-name">Min Weight</span><span class="ctrl-val" id="minWVal">200</span></div><input type="range" id="minW" min="200" max="600" value="200" step="50"></div>
-    <div class="ctrl"><div class="ctrl-head"><span class="ctrl-name">Max Weight</span><span class="ctrl-val" id="maxWVal">1000</span></div><input type="range" id="maxW" min="400" max="1000" value="1000" step="50"></div>
-    <div class="ctrl"><div class="ctrl-head"><span class="ctrl-name">Letter Spacing</span><span class="ctrl-val" id="lsVal">1</span></div><input type="range" id="ls" min="-2" max="4" value="1" step="0.5"></div>
-    <div class="ctrl">
-      <span class="ctrl-name">Characters</span>
-      <input class="text-input" id="charInput" value="Cross-reference precedent" spellcheck="false">
-    </div>
-
-    <div class="divider"></div>
-    <span class="panel-title">Container</span>
-    <div class="ctrl"><div class="ctrl-head"><span class="ctrl-name">Border Radius</span><span class="ctrl-val" id="brVal">20%</span></div><input type="range" id="br" min="0" max="50" value="20"></div>
-
-    <div class="divider"></div>
     <span class="panel-title">Display</span>
     <div class="toggle-row" id="invertRow">
       <span class="ctrl-name">Invert</span>
@@ -392,13 +377,9 @@
       });
     }
 
-    bind('fs', 'fontSize');
-    bind('minW', 'minW');
-    bind('maxW', 'maxW');
-    bind('ls', 'letterSpacing');
-    bind('br', 'borderRadius', v => v + '%');
+    // Typography and container controls removed — using fixed defaults
 
-    document.getElementById('charInput').addEventListener('input', e => applyName(e.target.value));
+    // charInput removed — characters set by presets only
 
     document.getElementById('invertRow').addEventListener('click', () => {
       P.inverted = !P.inverted;
