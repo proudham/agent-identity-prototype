@@ -359,7 +359,8 @@
       P.chars = name;
       nameChars = name.replace(/\s/g, '').split('');
       layers = buildLayers(name);
-      document.getElementById('charInput').value = name;
+      const charEl = document.getElementById('charInput');
+      if (charEl) charEl.value = name;
       document.getElementById('stageLabel').textContent = label || name;
       instances.forEach(inst => inst.flagRebuild());
     }
