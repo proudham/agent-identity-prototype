@@ -60,8 +60,8 @@
     .toggle-track.on .toggle-thumb { left: 18px; }
     .text-input { width: 100%; padding: 7px 10px; border: 1px solid var(--dimmer); border-radius: 6px; background: transparent; color: var(--fg); font-family: inherit; font-size: 11px; outline: none; margin-top: 4px; }
     .text-input:focus { border-color: var(--dim); }
-    .presets { display: flex; gap: 4px; padding: 4px 0; flex-wrap: wrap; }
-    .preset-btn { padding: 6px 10px; border: 1px solid var(--dimmer); border-radius: 6px; background: transparent; color: var(--dim); font-family: inherit; font-size: 10px; cursor: pointer; transition: all 0.15s; }
+    .presets { display: flex; flex-direction: column; gap: 4px; padding: 4px 0; }
+    .preset-btn { padding: 10px 12px; border: 1px solid var(--dimmer); border-radius: 8px; background: transparent; color: var(--dim); font-family: inherit; font-size: 12px; cursor: pointer; transition: all 0.15s; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .preset-btn:hover { background: var(--faint); color: var(--fg); }
     .divider { height: 1px; background: var(--faint); margin: 8px 0; }
   </style>
