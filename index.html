@@ -6,44 +6,27 @@
   <title>Agent Identity — Workbench</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <style>
     @font-face {
-      font-family: 'HarveySans';
-      src: url('./HarveySansDiatypeVariable.woff2') format('woff2');
-      font-weight: 200 1000;
+      font-family: 'HarveySerif';
+      src: url('./HarveySerif-Regular.woff2') format('woff2');
+      font-weight: 400;
       font-display: swap;
     }
     :root { --bg: #0F0E0D; --fg: #FAFAF9; --dim: rgba(250,250,249,0.35); --dimmer: rgba(250,250,249,0.12); --faint: rgba(250,250,249,0.06); }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: var(--bg); color: var(--fg); font-family: 'HarveySans', 'Inter', sans-serif; display: flex; height: 100vh; overflow: hidden; }
-
-    /* Invert only affects the stage, not the panel */
-    .stage.inverted { background: #FAFAF9; }
-    .stage.inverted .viz-char { color: #0F0E0D; }
-    .stage.inverted .viz-label { color: rgba(15,14,13,0.35); }
-    .stage.inverted .stage-label { color: rgba(15,14,13,0.35); }
+    body { background: var(--bg); color: var(--fg); font-family: 'Inter', sans-serif; display: flex; height: 100vh; overflow: hidden; }
 
     .stage { flex: 1; display: flex; align-items: center; justify-content: center; gap: 32px; position: relative; }
+    .stage.inverted { background: #FAFAF9; }
     .stage-label { font-size: 12px; color: var(--dim); }
+    .stage.inverted .stage-label { color: rgba(15,14,13,0.35); }
+
     .viz-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
     .viz-label { font-size: 10px; color: var(--dim); font-variant-numeric: tabular-nums; }
 
-    /* DOM-based visualization container */
-    .viz {
-      position: relative;
-      overflow: visible;
-    }
-    .viz-char {
-      position: absolute;
-      font-family: 'HarveySans', 'Inter', sans-serif;
-      text-align: center;
-      line-height: 1;
-      pointer-events: none;
-      will-change: font-weight, opacity;
-    }
-
-    .panel { width: 280px; flex-shrink: 0; padding: 20px 18px; overflow-y: auto; border-left: 1px solid var(--faint); display: flex; flex-direction: column; gap: 4px; }
+    .panel { width: 280px; flex-shrink: 0; padding: 20px 18px; overflow-y: auto; border-left: 1px solid var(--faint); display: flex; flex-direction: column; gap: 4px; font-family: 'Inter', sans-serif; }
     .panel-title { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); padding: 12px 0 8px; }
     .panel-title:first-child { padding-top: 0; }
     .ctrl { display: flex; flex-direction: column; gap: 3px; padding: 5px 0; }
@@ -58,8 +41,6 @@
     .toggle-track.on { background: var(--dim); }
     .toggle-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--fg); opacity: 0.5; position: absolute; top: 2px; left: 2px; transition: left 0.2s; }
     .toggle-track.on .toggle-thumb { left: 18px; }
-    .text-input { width: 100%; padding: 7px 10px; border: 1px solid var(--dimmer); border-radius: 6px; background: transparent; color: var(--fg); font-family: inherit; font-size: 11px; outline: none; margin-top: 4px; }
-    .text-input:focus { border-color: var(--dim); }
     .presets { display: flex; flex-direction: column; gap: 4px; padding: 4px 0; }
     .preset-btn { padding: 10px 12px; border: 1px solid var(--dimmer); border-radius: 8px; background: transparent; color: var(--dim); font-family: inherit; font-size: 12px; cursor: pointer; transition: all 0.15s; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .preset-btn:hover { background: var(--faint); color: var(--fg); }
@@ -76,6 +57,32 @@
     <div class="presets" id="presets"></div>
 
     <div class="divider"></div>
+    <span class="panel-title">Animation</span>
+    <div class="ctrl">
+      <div class="ctrl-head"><span class="ctrl-name">Speed</span><span class="ctrl-val" id="speedVal">8</span></div>
+      <input type="range" id="speed" min="1" max="40" value="8">
+    </div>
+    <div class="ctrl">
+      <div class="ctrl-head"><span class="ctrl-name">Displacement</span><span class="ctrl-val" id="compVal">60</span></div>
+      <input type="range" id="comp" min="0" max="100" value="60">
+    </div>
+    <div class="ctrl">
+      <div class="ctrl-head"><span class="ctrl-name">Wave Freq</span><span class="ctrl-val" id="freqVal">8</span></div>
+      <input type="range" id="freq" min="2" max="20" value="8">
+    </div>
+    <div class="ctrl">
+      <div class="ctrl-head"><span class="ctrl-name">Tilt</span><span class="ctrl-val" id="tiltVal">15</span></div>
+      <input type="range" id="tilt" min="0" max="45" value="15">
+    </div>
+
+    <div class="divider"></div>
+    <span class="panel-title">Typography</span>
+    <div class="ctrl">
+      <div class="ctrl-head"><span class="ctrl-name">Scale</span><span class="ctrl-val" id="scaleVal">8</span></div>
+      <input type="range" id="scale" min="3" max="16" value="8">
+    </div>
+
+    <div class="divider"></div>
     <span class="panel-title">Display</span>
     <div class="toggle-row" id="invertRow">
       <span class="ctrl-name">Invert</span>
@@ -87,38 +94,25 @@
     </div>
   </div>
 
-  <script type="module">
-    import { prepare, walkLineRanges } from 'https://esm.sh/@chenglou/pretext@0.0.3'
-
+  <script>
     // ══════════════════════════════════════
     // State
     // ══════════════════════════════════════
     const P = {
-      speed: 36,
-      fontSize: 10, minW: 200, maxW: 1000, letterSpacing: 1,
-      chars: 'Cross-reference precedent',
-      borderRadius: 20,
-      inverted: false, paused: false,
+      speed: 8,
+      displacementStrength: 0.6,
+      fontSize: 8,
+      waveFreq: 8,
+      tilt: 15,
+      inverted: false,
+      paused: false,
     };
 
-    const SIZES = [256, 128, 64, 32];
-    const BASE_SIZE = 256;
+    const SIZES = [400];
 
-    // Derived from name (set by applyName)
-    let layers = [];
     let nameChars = [];
-
-    // Pretext-based character width cache
-    const charWidthCache = new Map();
-    function measureCharWidth(ch, fontStr) {
-      const key = `${ch}|${fontStr}`;
-      if (charWidthCache.has(key)) return charWidthCache.get(key);
-      const prepared = prepare(ch, fontStr);
-      let width = 0;
-      walkLineRanges(prepared, 9999, (line) => { width = line.width; });
-      charWidthCache.set(key, width);
-      return width;
-    }
+    let nameSeed = 0;
+    let layers = [];
 
     // ══════════════════════════════════════
     // Utilities
@@ -135,61 +129,125 @@
     }
 
     // ══════════════════════════════════════
-    // Build sine wave layers from name
+    // Sine wave layers — identity-unique density field
     // ══════════════════════════════════════
     function buildLayers(name) {
       const seed = hashName(name);
-      const count = 3 + Math.floor(seededRandom(seed, 99) * 3);
+      const count = 4 + Math.floor(seededRandom(seed, 99) * 3);
       const result = [];
       for (let i = 0; i < count; i++) {
         result.push({
-          angle: seededRandom(seed, i * 3 + 0) * Math.PI * 2,
-          freqMul: 0.6 + seededRandom(seed, i * 3 + 1) * 1.2,
+          angle: seededRandom(seed, i * 3) * Math.PI * 2,
+          freqMul: 0.8 + seededRandom(seed, i * 3 + 1) * 1.4,
           phase: seededRandom(seed, i * 3 + 2) * Math.PI * 2,
-          amp: 1.0 / (1 + i * 0.5),
+          amp: 1.0 / (1 + i * 0.4),
         });
       }
       return result;
     }
 
-    // ══════════════════════════════════════
-    // Brightness: layered sines
-    // ══════════════════════════════════════
-    // BASE_FREQ now operates on normalized 0-1 coordinates so waves scale with container
-    const BASE_FREQ = 14;
-
-    function getBrightness(nx, ny, phase) {
+    // Sample density field at a sphere surface point
+    // Returns [-1, 1]
+    function getDensityField(theta, phi, animPhase) {
+      const nx = theta / (Math.PI * 2);
+      const ny = phi / Math.PI;
       let total = 0, totalAmp = 0;
       for (let i = 0; i < layers.length; i++) {
         const l = layers[i];
         const dx = Math.cos(l.angle), dy = Math.sin(l.angle);
-        const spatial = (nx * dx + ny * dy) * BASE_FREQ * l.freqMul;
-        total += Math.sin(spatial + l.phase + phase) * l.amp;
+        const spatial = (nx * dx + ny * dy) * P.waveFreq * l.freqMul;
+        total += Math.sin(spatial + l.phase + animPhase) * l.amp;
         totalAmp += l.amp;
       }
-      return (total / totalAmp + 1) / 2;
+      return total / totalAmp;
     }
 
     // ══════════════════════════════════════
-    // VizInstance — one visualization at a given size
+    // Generate latitude bands — array of arrays
     // ══════════════════════════════════════
-    const FONT = "'HarveySans', 'Inter', sans-serif";
+    function generateLatitudeBands(numBands) {
+      const bands = [];
+      let charIdx = 0;
 
+      for (let b = 0; b < numBands; b++) {
+        const phi = (b + 0.5) / numBands * Math.PI;
+        const circumference = Math.sin(phi);
+        const count = Math.max(4, Math.round(circumference * numBands * 2.0));
+        const band = [];
+
+        for (let j = 0; j < count; j++) {
+          const baseTheta = (j / count) * Math.PI * 2;
+          const ci = charIdx % nameChars.length;
+          charIdx++;
+          band.push({ baseTheta, ci });
+        }
+
+        bands.push({ phi, points: band });
+      }
+      return bands;
+    }
+
+    // ══════════════════════════════════════
+    // CDF-based redistribution within a band
+    // Returns array of new theta values
+    // ══════════════════════════════════════
+    function redistributeBand(band, animPhase, strength) {
+      const pts = band.points;
+      const n = pts.length;
+      if (n === 0) return [];
+      if (strength < 0.001) {
+        // No compression — return base positions
+        return pts.map(p => p.baseTheta);
+      }
+
+      const phi = band.phi;
+      const spacing = new Float64Array(n);
+      const cumulative = new Float64Array(n);
+
+      // 1. Compute inverse spacing from density field
+      for (let j = 0; j < n; j++) {
+        const d = getDensityField(pts[j].baseTheta, phi, animPhase);
+        // exp mapping: high density → high weight → small spacing
+        const w = Math.exp(strength * d * 2);
+        spacing[j] = 1 / w;
+      }
+
+      // 2. Build cumulative sum
+      cumulative[0] = 0;
+      for (let j = 1; j < n; j++) {
+        cumulative[j] = cumulative[j - 1] + spacing[j - 1];
+      }
+      const total = cumulative[n - 1] + spacing[n - 1];
+
+      // 3. Normalize to [0, 2π)
+      const newThetas = new Float64Array(n);
+      for (let j = 0; j < n; j++) {
+        newThetas[j] = (cumulative[j] / total) * Math.PI * 2;
+      }
+
+      return newThetas;
+    }
+
+    // ══════════════════════════════════════
+    // VizInstance — canvas-based sphere renderer
+    // ══════════════════════════════════════
     class VizInstance {
       constructor(size, parentEl) {
         this.size = size;
-        this.spans = [];
-        this.gridCells = [];
+        this.bands = [];
         this.needsRebuild = true;
-        this.lastLayoutKey = '';
+        this.lastChars = '';
 
-        // Create DOM
         const col = document.createElement('div');
         col.className = 'viz-col';
 
-        this.el = document.createElement('div');
-        this.el.className = 'viz';
-        col.appendChild(this.el);
+        this.canvas = document.createElement('canvas');
+        this.canvas.width = size * 2;
+        this.canvas.height = size * 2;
+        this.canvas.style.width = size + 'px';
+        this.canvas.style.height = size + 'px';
+        this.ctx = this.canvas.getContext('2d');
+        col.appendChild(this.canvas);
 
         const label = document.createElement('span');
         label.className = 'viz-label';
@@ -199,146 +257,136 @@
         parentEl.appendChild(col);
       }
 
-      get scaledFontSize() {
-        // Use a lookup for small sizes to ensure characters remain legible
-        if (this.size <= 32) return 3;
-        if (this.size <= 64) return 4;
-        if (this.size <= 128) return 6;
-        return P.fontSize;
+      get numBands() {
+        const fsScale = 8 / P.fontSize;
+        const s = this.size;
+        let base;
+        if (s >= 400) base = 45;
+        else if (s >= 200) base = 28;
+        else if (s >= 96) base = 16;
+        else base = 10;
+        return Math.max(6, Math.round(base * fsScale));
       }
 
-      get scaledLetterSpacing() {
-        if (this.size <= 64) return 0;
-        if (this.size <= 128) return P.letterSpacing * 0.5;
-        return P.letterSpacing;
+      get baseFontSize() {
+        const s = this.size;
+        const scale = s / 400;
+        return Math.max(2, Math.round(P.fontSize * scale));
       }
 
-      rebuildGrid() {
-        const size = this.size;
-        const fs = this.scaledFontSize;
-        const ls = this.scaledLetterSpacing;
+      rebuild() {
+        this.bands = generateLatitudeBands(this.numBands);
+        this.needsRebuild = false;
+        this.lastChars = nameChars.join('');
+      }
 
-        // Update container
-        this.el.style.width = size + 'px';
-        this.el.style.height = size + 'px';
-        // No border — circular text shape defines the form
-
-        // Measure widest character via Pretext
-        const measureFont = `${fs}px ${FONT}`;
-        let maxCharW = 0;
-        for (let i = 0; i < nameChars.length; i++) {
-          const w = measureCharWidth(nameChars[i], measureFont);
-          if (w > maxCharW) maxCharW = w;
+      render(rotY, rotX, animPhase) {
+        if (nameChars.length === 0) return;
+        if (this.needsRebuild || this.lastChars !== nameChars.join('')) {
+          this.rebuild();
         }
-        const cellW = maxCharW + ls + 1;
-        const cellH = fs * 1.3;
-        const cols = Math.floor(size / cellW);
-        const rows = Math.floor(size / cellH);
 
-        // Circle-based layout with edge falloff
-        const cx = size / 2, cy = size / 2;
-        const circleR = size * 0.46;
-        const falloff = size * 0.12;
-        const MIN_SCALE = 0.3;
+        const ctx = this.ctx;
+        const sc = 2;
+        const W = this.size * sc;
+        const H = this.size * sc;
+        const half = W / 2;
+        const R = W * 0.45;
+        const fl = R * 3.5; // FL proportional to sphere — consistent perspective at all sizes
+        const baseFS = this.baseFontSize * sc;
+        const strength = P.displacementStrength;
 
-        const newCells = [];
+        ctx.clearRect(0, 0, W, H);
 
-        // Center the grid on the circle center
-        const gridW = cols * cellW;
-        const gridH = rows * cellH;
-        const offsetX = (size - gridW) / 2 + cellW / 2;
-        const offsetY = (size - gridH) / 2 + cellH / 2;
+        const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+        const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
 
-        for (let row = 0; row < rows; row++) {
-          const y = offsetY + row * cellH;
-          for (let col = 0; col < cols; col++) {
-            const x = offsetX + col * cellW;
+        // Render directly — bands are already in latitude order (roughly back-to-front with tilt)
+        const fg = P.inverted ? '#0F0E0D' : '#FAFAF9';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = fg;
+        // Set font once — same size for all chars in a band, quantized
+        let lastFontKey = '';
 
-            const dx = x - cx, dy = y - cy;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist > circleR) continue;
+        for (let b = 0; b < this.bands.length; b++) {
+          const band = this.bands[b];
+          const phi = band.phi;
+          const pts = band.points;
+          const sinPhi = Math.sin(phi), cosPhi = Math.cos(phi);
 
-            // Edge falloff — scale down near the circle boundary
-            const distFromEdge = circleR - dist;
-            let scale = 1;
-            if (distFromEdge < falloff) {
-              const t = distFromEdge / falloff;
-              scale = MIN_SCALE + t * t * (1 - MIN_SCALE);
+          for (let j = 0; j < pts.length; j++) {
+            const theta = pts[j].baseTheta;
+
+            // First compute the undisplaced world position
+            const ux = sinPhi * Math.cos(theta) * R;
+            const uy = -cosPhi * R;
+            const uz = sinPhi * Math.sin(theta) * R;
+
+            // Rotate to world space FIRST (before displacement)
+            const wx = ux * cosY + uz * sinY;
+            const wz = -ux * sinY + uz * cosY;
+            const wy2 = uy * cosX - wz * sinX;
+            const wz2 = uy * sinX + wz * cosX;
+
+            // Sample density field in WORLD SPACE (after rotation)
+            // This decouples the wave from the sphere — the sphere rotates
+            // through a stationary wave field
+            const wnx = (wx / R + 1) * 0.5; // normalize to 0-1
+            const wny = (wy2 / R + 1) * 0.5;
+            let total = 0, totalAmp = 0;
+            for (let li = 0; li < layers.length; li++) {
+              const l = layers[li];
+              const dx = Math.cos(l.angle), dy = Math.sin(l.angle);
+              const spatial = (wnx * dx + wny * dy) * P.waveFreq * l.freqMul;
+              total += Math.sin(spatial + l.phase + animPhase) * l.amp;
+              totalAmp += l.amp;
+            }
+            const d = total / totalAmp; // -1 to 1
+
+            // Displace along the surface normal (radially)
+            const r = R * (1 + strength * d * 0.3);
+            const scale = r / R;
+
+            // Apply displacement to the rotated position
+            const rx = wx * scale;
+            const rz2 = wz2 * scale;
+            const ry2 = wy2 * scale;
+
+            // Cull back hemisphere (use base R for consistent culling)
+            if (rz2 < -R * 0.15) continue;
+
+            // Perspective projection
+            const perspScale = fl / (fl + rz2);
+            const sx = half + rx * perspScale;
+            const sy = half + ry2 * perspScale;
+
+            // Depth: 0 at back edge, 1 at front
+            const depthNorm = Math.max(0, (rz2 + R * 0.15) / (R * 1.15));
+
+            // Smooth opacity — cubic falloff at edges
+            const opacity = depthNorm * depthNorm * depthNorm;
+            if (opacity < 0.02) continue;
+
+            // Depth-based size: front chars ~25% larger than back
+            const depthSize = 0.8 + depthNorm * 0.25;
+            const fontSize = Math.round(baseFS * depthSize);
+            const scaleX = 0.15 + depthNorm * 0.85;
+
+            const fontKey = fontSize;
+            if (fontKey !== lastFontKey) {
+              ctx.font = `${fontSize}px HarveySerif, Georgia, serif`;
+              lastFontKey = fontKey;
             }
 
-            const charSize = Math.round(fs * scale);
-            if (charSize < 2) continue;
-
-            const rowOffset = Math.floor(row * nameChars.length * 0.618033);
-            const ci = (col + rowOffset) % nameChars.length;
-
-            const nx = x / size;
-            const ny = y / size;
-
-            newCells.push({ x, y, nx, ny, charSize, ci, cellW });
+            ctx.globalAlpha = Math.min(1, opacity);
+            ctx.setTransform(scaleX, 0, 0, 1, sx, sy);
+            ctx.fillText(nameChars[pts[j].ci], 0, 0);
           }
         }
 
-        // Grow or shrink span pool
-        while (this.spans.length < newCells.length) {
-          const span = document.createElement('span');
-          span.className = 'viz-char';
-          this.el.appendChild(span);
-          this.spans.push(span);
-        }
-        for (let i = newCells.length; i < this.spans.length; i++) {
-          this.spans[i].style.display = 'none';
-        }
-
-        // Position spans
-        for (let i = 0; i < newCells.length; i++) {
-          const cell = newCells[i];
-          const span = this.spans[i];
-          span.style.display = '';
-          span.style.left = (cell.x - cell.cellW / 2) + 'px';
-          span.style.top = (cell.y - cell.charSize / 2) + 'px';
-          span.style.width = cell.cellW + 'px';
-          span.style.fontSize = cell.charSize + 'px';
-          span.textContent = nameChars[cell.ci];
-          cell.span = span;
-        }
-
-        this.gridCells = newCells;
-        this.needsRebuild = false;
-        this.lastLayoutKey = this.layoutKey;
-      }
-
-      get layoutKey() {
-        return `${this.size}_${P.fontSize}_${P.letterSpacing}_${P.borderRadius}_${P.chars}`;
-      }
-
-      render(phase) {
-        if (nameChars.length === 0) return;
-
-        if (this.needsRebuild || this.layoutKey !== this.lastLayoutKey) {
-          this.rebuildGrid();
-        }
-
-        const weightRange = P.maxW - P.minW;
-
-        for (let i = 0; i < this.gridCells.length; i++) {
-          const cell = this.gridCells[i];
-          const n = getBrightness(cell.nx, cell.ny, phase);
-
-          let weight, opacity;
-          if (P.inverted) {
-            // Inverted: flip brightness so wave reads as shadow/depth
-            const inv = 1 - n;
-            weight = Math.min(P.maxW, Math.max(P.minW, Math.round((P.minW + inv * weightRange) / 50) * 50));
-            opacity = 0.2 + inv * 0.8; // linear, floor at 0.2 so quiet chars stay visible
-          } else {
-            weight = Math.min(P.maxW, Math.max(P.minW, Math.round((P.minW + n * weightRange) / 50) * 50));
-            opacity = 0.15 + n * 0.85;
-          }
-
-          cell.span.style.fontWeight = weight;
-          cell.span.style.opacity = opacity;
-        }
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.globalAlpha = 1;
       }
 
       flagRebuild() {
@@ -353,14 +401,12 @@
     const instances = SIZES.map(size => new VizInstance(size, stage));
 
     // ══════════════════════════════════════
-    // Apply a name — derives all animation params
+    // Apply a name
     // ══════════════════════════════════════
     function applyName(name, label) {
-      P.chars = name;
       nameChars = name.replace(/\s/g, '').split('');
+      nameSeed = hashName(name);
       layers = buildLayers(name);
-      const charEl = document.getElementById('charInput');
-      if (charEl) charEl.value = name;
       document.getElementById('stageLabel').textContent = label || name;
       instances.forEach(inst => inst.flagRebuild());
     }
@@ -368,19 +414,31 @@
     // ══════════════════════════════════════
     // Controls
     // ══════════════════════════════════════
-    function bind(id, key, fmt) {
-      const el = document.getElementById(id);
-      const val = document.getElementById(id + 'Val');
-      el.addEventListener('input', () => {
-        P[key] = +el.value;
-        if (val) val.textContent = fmt ? fmt(el.value) : el.value;
-        instances.forEach(inst => inst.flagRebuild());
-      });
-    }
+    document.getElementById('speed').addEventListener('input', (e) => {
+      P.speed = +e.target.value;
+      document.getElementById('speedVal').textContent = e.target.value;
+    });
 
-    // Typography and container controls removed — using fixed defaults
+    document.getElementById('comp').addEventListener('input', (e) => {
+      P.displacementStrength = +e.target.value / 100;
+      document.getElementById('compVal').textContent = e.target.value;
+    });
 
-    // charInput removed — characters set by presets only
+    document.getElementById('freq').addEventListener('input', (e) => {
+      P.waveFreq = +e.target.value;
+      document.getElementById('freqVal').textContent = e.target.value;
+    });
+
+    document.getElementById('tilt').addEventListener('input', (e) => {
+      P.tilt = +e.target.value;
+      document.getElementById('tiltVal').textContent = e.target.value;
+    });
+
+    document.getElementById('scale').addEventListener('input', (e) => {
+      P.fontSize = +e.target.value;
+      document.getElementById('scaleVal').textContent = e.target.value;
+      instances.forEach(inst => inst.flagRebuild());
+    });
 
     document.getElementById('invertRow').addEventListener('click', () => {
       P.inverted = !P.inverted;
@@ -417,16 +475,18 @@
     // ══════════════════════════════════════
     // Init + Animation loop
     // ══════════════════════════════════════
-    applyName(P.chars);
+    applyName('Cross-reference precedent', 'Cross-ref precedent');
 
     let t0 = null;
     function loop(timestamp) {
       if (t0 === null) t0 = timestamp;
       if (!P.paused) {
-        const timeMs = timestamp - t0;
-        const phase = (timeMs / 1000) * (P.speed / 10);
+        const elapsed = (timestamp - t0) / 1000;
+        const rotY = elapsed * (P.speed / 100) * Math.PI * 2;
+        const rotX = -(P.tilt / 180) * Math.PI;
+        const animPhase = elapsed * (P.speed / 150) * Math.PI * 2;
         for (let i = 0; i < instances.length; i++) {
-          instances[i].render(phase);
+          instances[i].render(rotY, rotX, animPhase);
         }
       }
       requestAnimationFrame(loop);
