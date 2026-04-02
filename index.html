@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agent Identity — Workbench</title>
+  <title>Agent Identity — Drift</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
@@ -14,36 +14,92 @@
       font-weight: 200 1000;
       font-display: swap;
     }
+    @font-face {
+      font-family: 'HarveySerif';
+      src: url('./HarveySerif-Regular.woff2') format('woff2');
+      font-weight: 400;
+      font-display: swap;
+    }
     :root { --bg: #0F0E0D; --fg: #FAFAF9; --dim: rgba(250,250,249,0.35); --dimmer: rgba(250,250,249,0.12); --faint: rgba(250,250,249,0.06); }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: var(--bg); color: var(--fg); font-family: 'HarveySans', 'Inter', sans-serif; display: flex; height: 100vh; overflow: hidden; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--fg); font-family: 'HarveySans', 'Inter', sans-serif; }
 
-    /* Invert only affects the stage, not the panel */
-    .stage.inverted { background: #FAFAF9; }
-    .stage.inverted .viz-char { color: #0F0E0D; }
-    .stage.inverted .viz-label { color: rgba(15,14,13,0.35); }
-    .stage.inverted .stage-label { color: rgba(15,14,13,0.35); }
+    .hero { position: relative; width: 100%; height: 100vh; overflow: hidden; }
+    .hero.inverted { background: #FAFAF9; }
+    .hero.inverted .hero-content { color: #0F0E0D; }
+    .hero.inverted .hero-nav { color: #0F0E0D; }
 
-    .stage { flex: 1; display: flex; align-items: center; justify-content: center; gap: 32px; position: relative; }
-    .stage-label { font-size: 12px; color: var(--dim); }
-    .viz-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .viz-label { font-size: 10px; color: var(--dim); font-variant-numeric: tabular-nums; }
-
-    /* DOM-based visualization container */
-    .viz {
-      position: relative;
-      overflow: visible;
-    }
-    .viz-char {
+    /* Nav bar */
+    .hero-nav {
       position: absolute;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 28px 36px;
+      z-index: 3;
+      pointer-events: auto;
+    }
+    .hero-nav-logo {
       font-family: 'HarveySans', 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 300;
+      letter-spacing: 0.02em;
+    }
+    .hero-nav-harvey {
+      font-family: 'HarveySerif', Georgia, serif;
+      font-weight: 400;
+    }
+    .hero-nav-logo strong {
+      font-weight: 650;
+    }
+    .hero-nav-link {
+      font-family: 'HarveySans', 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      color: inherit;
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+    }
+    .hero-nav-link:hover { opacity: 1; }
+
+    /* Hero content — centered headline */
+    .hero-content {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
       text-align: center;
-      line-height: 1;
       pointer-events: none;
-      will-change: font-weight, opacity;
     }
 
-    .panel { width: 280px; flex-shrink: 0; padding: 20px 18px; overflow-y: auto; border-left: 1px solid var(--faint); display: flex; flex-direction: column; gap: 4px; }
+    .hero-h1 {
+      font-family: 'HarveySerif', Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(40px, 6.2vw, 88px);
+      line-height: 1.18;
+      letter-spacing: -0.015em;
+      white-space: nowrap;
+    }
+
+    /* Second section for scroll testing */
+    .section-next {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--dimmer);
+    }
+
+    /* Control panel */
+    .panel { position: fixed; top: 0; right: 0; width: 280px; height: 100vh; padding: 20px 18px; overflow-y: auto; border-left: 1px solid var(--faint); display: flex; flex-direction: column; gap: 4px; background: var(--bg); z-index: 10; transform: translateX(0); transition: transform 0.3s ease; }
+    .panel.collapsed { transform: translateX(100%); }
+    .panel-toggle { position: fixed; top: 16px; right: 16px; z-index: 11; width: 32px; height: 32px; border: 1px solid var(--dimmer); border-radius: 6px; background: var(--bg); color: var(--dim); font-family: inherit; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .panel-toggle:hover { background: var(--faint); color: var(--fg); }
+    .panel:not(.collapsed) ~ .panel-toggle { right: 296px; }
     .panel-title { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); padding: 12px 0 8px; }
     .panel-title:first-child { padding-top: 0; }
     .ctrl { display: flex; flex-direction: column; gap: 3px; padding: 5px 0; }
@@ -58,22 +114,50 @@
     .toggle-track.on { background: var(--dim); }
     .toggle-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--fg); opacity: 0.5; position: absolute; top: 2px; left: 2px; transition: left 0.2s; }
     .toggle-track.on .toggle-thumb { left: 18px; }
-    .text-input { width: 100%; padding: 7px 10px; border: 1px solid var(--dimmer); border-radius: 6px; background: transparent; color: var(--fg); font-family: inherit; font-size: 11px; outline: none; margin-top: 4px; }
-    .text-input:focus { border-color: var(--dim); }
-    .presets { display: flex; flex-direction: column; gap: 4px; padding: 4px 0; }
-    .preset-btn { padding: 10px 12px; border: 1px solid var(--dimmer); border-radius: 8px; background: transparent; color: var(--dim); font-family: inherit; font-size: 12px; cursor: pointer; transition: all 0.15s; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .preset-btn:hover { background: var(--faint); color: var(--fg); }
     .divider { height: 1px; background: var(--faint); margin: 8px 0; }
   </style>
 </head>
 <body>
-  <div class="stage" id="stage">
-    <span class="stage-label" id="stageLabel" style="position:absolute; bottom:24px; left:50%; transform:translateX(-50%);">Cross-ref precedent</span>
-  </div>
+  <section class="hero" id="hero">
+    <nav class="hero-nav">
+      <span class="hero-nav-logo"><span class="hero-nav-harvey">Harvey</span> <strong>Agents</strong></span>
+      <a href="#" class="hero-nav-link">Home</a>
+    </nav>
+    <div class="hero-content">
+      <h1 class="hero-h1">Delegate the Work.<br>Own the Judgement.</h1>
+    </div>
+  </section>
+
 
   <div class="panel">
-    <span class="panel-title">Presets</span>
-    <div class="presets" id="presets"></div>
+    <span class="panel-title">Agents</span>
+    <div class="ctrl">
+      <div class="ctrl-head"><span class="ctrl-name">Radius</span><span class="ctrl-val" id="radiusVal">140</span></div>
+      <input type="range" id="radius" min="40" max="240" value="140">
+    </div>
+    <div class="ctrl">
+      <div class="ctrl-head"><span class="ctrl-name">Speed</span><span class="ctrl-val" id="speedVal">18</span></div>
+      <input type="range" id="speed" min="2" max="60" value="18">
+    </div>
+    <div class="ctrl">
+      <div class="ctrl-head"><span class="ctrl-name">Font size</span><span class="ctrl-val" id="fontSizeVal">12</span></div>
+      <input type="range" id="fontSize" min="4" max="24" value="12">
+    </div>
+
+    <div class="divider"></div>
+    <span class="panel-title">Field</span>
+    <div class="ctrl">
+      <div class="ctrl-head"><span class="ctrl-name">Threshold</span><span class="ctrl-val" id="thresholdVal">1.0</span></div>
+      <input type="range" id="threshold" min="0.3" max="2.0" step="0.05" value="1.0">
+    </div>
+    <div class="ctrl">
+      <div class="ctrl-head"><span class="ctrl-name">Wave speed</span><span class="ctrl-val" id="waveSpeedVal">36</span></div>
+      <input type="range" id="waveSpeed" min="1" max="100" value="36">
+    </div>
+    <div class="ctrl">
+      <div class="ctrl-head"><span class="ctrl-name">Clearance</span><span class="ctrl-val" id="clearanceVal">300</span></div>
+      <input type="range" id="clearance" min="0" max="500" value="300">
+    </div>
 
     <div class="divider"></div>
     <span class="panel-title">Display</span>
@@ -86,39 +170,32 @@
       <div class="toggle-track" id="pauseTrack"><div class="toggle-thumb"></div></div>
     </div>
   </div>
+  <button class="panel-toggle" id="panelToggle">&#9881;</button>
 
   <script type="module">
-    import { prepare, walkLineRanges } from 'https://esm.sh/@chenglou/pretext@0.0.3'
-
     // ══════════════════════════════════════
     // State
     // ══════════════════════════════════════
     const P = {
-      speed: 36,
-      fontSize: 10, minW: 200, maxW: 1000, letterSpacing: 1,
-      chars: 'Cross-reference precedent',
-      borderRadius: 20,
-      inverted: false, paused: false,
+      inverted: false,
+      paused: false,
+      waveSpeed: 36,
+      minW: 200,
+      maxW: 1000,
+      clearanceRadius: 300,
     };
 
-    const SIZES = [256, 128, 64, 32];
-    const BASE_SIZE = 256;
-
-    // Derived from name (set by applyName)
-    let layers = [];
-    let nameChars = [];
-
-    // Pretext-based character width cache
-    const charWidthCache = new Map();
-    function measureCharWidth(ch, fontStr) {
-      const key = `${ch}|${fontStr}`;
-      if (charWidthCache.has(key)) return charWidthCache.get(key);
-      const prepared = prepare(ch, fontStr);
-      let width = 0;
-      walkLineRanges(prepared, 9999, (line) => { width = line.width; });
-      charWidthCache.set(key, width);
-      return width;
-    }
+    const DRIFT = {
+      radius: 140,
+      speed: 18,
+      fieldThreshold: 1.0,
+      fontSize: 12,
+      letterSpacing: 1,
+      edgePad: 60,
+      mouseRadius: 80,
+      mouseFieldStrength: 0.8,
+      entranceDuration: 4.0,
+    };
 
     // ══════════════════════════════════════
     // Utilities
@@ -134,9 +211,6 @@
       return s - Math.floor(s);
     }
 
-    // ══════════════════════════════════════
-    // Build sine wave layers from name
-    // ══════════════════════════════════════
     function buildLayers(name) {
       const seed = hashName(name);
       const count = 3 + Math.floor(seededRandom(seed, 99) * 3);
@@ -155,13 +229,12 @@
     // ══════════════════════════════════════
     // Brightness: layered sines
     // ══════════════════════════════════════
-    // BASE_FREQ now operates on normalized 0-1 coordinates so waves scale with container
     const BASE_FREQ = 14;
 
-    function getBrightness(nx, ny, phase) {
+    function getBrightness(nx, ny, phase, layerSet) {
       let total = 0, totalAmp = 0;
-      for (let i = 0; i < layers.length; i++) {
-        const l = layers[i];
+      for (let i = 0; i < layerSet.length; i++) {
+        const l = layerSet[i];
         const dx = Math.cos(l.angle), dy = Math.sin(l.angle);
         const spatial = (nx * dx + ny * dy) * BASE_FREQ * l.freqMul;
         total += Math.sin(spatial + l.phase + phase) * l.amp;
@@ -171,220 +244,439 @@
     }
 
     // ══════════════════════════════════════
-    // VizInstance — one visualization at a given size
+    // Agent data
     // ══════════════════════════════════════
     const FONT = "'HarveySans', 'Inter', sans-serif";
 
-    class VizInstance {
-      constructor(size, parentEl) {
-        this.size = size;
-        this.spans = [];
-        this.gridCells = [];
-        this.needsRebuild = true;
-        this.lastLayoutKey = '';
+    const presetData = [
+      { label: 'Ingest data room', chars: 'Ingest data room' },
+      { label: 'Extract key terms', chars: 'Extract key terms' },
+      { label: 'Flag regulatory triggers', chars: 'Flag regulatory triggers' },
+      { label: 'Cross-ref precedent', chars: 'Cross-reference precedent' },
+      { label: 'Draft red flag report', chars: 'Draft red flag report' },
+    ];
 
-        // Create DOM
-        const col = document.createElement('div');
-        col.className = 'viz-col';
+    const AGENTS = presetData.map((p, idx) => {
+      const nc = p.chars.replace(/\s/g, '').split('');
+      const seed = hashName(p.chars);
+      return {
+        id: idx,
+        label: p.label,
+        chars: p.chars,
+        nameChars: nc,
+        layers: buildLayers(p.chars),
+        seed,
+        depth: 0.6 + seededRandom(seed, 80) * 0.4, // 0.6 – 1.0
+      };
+    });
 
-        this.el = document.createElement('div');
-        this.el.className = 'viz';
-        col.appendChild(this.el);
 
-        const label = document.createElement('span');
-        label.className = 'viz-label';
-        label.textContent = size + 'px';
-        col.appendChild(label);
+    // ══════════════════════════════════════
+    // DriftMode
+    // ══════════════════════════════════════
+    class DriftMode {
+      constructor(heroEl) {
+        this.hero = heroEl;
+        this.canvas = document.createElement('canvas');
+        this.canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;';
+        this.hero.insertBefore(this.canvas, this.hero.firstChild);
+        this.ctx = this.canvas.getContext('2d');
+        this.agents = [];
+        this.cellW = 0;
+        this.cellH = 0;
+        this.dpr = window.devicePixelRatio || 1;
 
-        parentEl.appendChild(col);
+        // Mouse state
+        this.mouseX = 0;
+        this.mouseY = 0;
+        this.mouseActive = false;
+        this.mouseCurrentRadius = 0;
+
+        // Entrance animation
+        this.entranceStart = null;
+        this.entranceProgress = 0;
+
+        // Scroll fade
+        this.scrollOpacity = 1;
+
+        this._resize();
+        this._initAgents();
+
+        // Debounced resize
+        let resizeTimer;
+        this._onResize = () => {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(() => { this._resize(); this._measureCells(); }, 100);
+        };
+        window.addEventListener('resize', this._onResize);
+
+        // Mouse events
+        this.canvas.addEventListener('mousemove', e => {
+          const rect = this.canvas.getBoundingClientRect();
+          this.mouseX = e.clientX - rect.left;
+          this.mouseY = e.clientY - rect.top;
+          this.mouseActive = true;
+        });
+        this.canvas.addEventListener('mouseleave', () => { this.mouseActive = false; });
+
+        // Touch events
+        this.canvas.addEventListener('touchmove', e => {
+          const rect = this.canvas.getBoundingClientRect();
+          const t = e.touches[0];
+          this.mouseX = t.clientX - rect.left;
+          this.mouseY = t.clientY - rect.top;
+          this.mouseActive = true;
+        }, { passive: true });
+        this.canvas.addEventListener('touchend', () => { this.mouseActive = false; });
+
+        // Scroll fade
+        this._onScroll = () => {
+          const heroH = this.hero.offsetHeight;
+          const scrollY = window.scrollY;
+          this.scrollOpacity = Math.max(0, 1 - scrollY / (heroH * 0.6));
+        };
+        window.addEventListener('scroll', this._onScroll, { passive: true });
+
+        // Visibility API
+        this._onVisibility = () => {
+          if (document.hidden) P.paused = true;
+          // Don't auto-unpause — let the loop handle timestamp reset
+        };
+        document.addEventListener('visibilitychange', this._onVisibility);
       }
 
-      get scaledFontSize() {
-        // Use a lookup for small sizes to ensure characters remain legible
-        if (this.size <= 32) return 3;
-        if (this.size <= 64) return 4;
-        if (this.size <= 128) return 6;
-        return P.fontSize;
+      _resize() {
+        const rect = this.hero.getBoundingClientRect();
+        this.w = rect.width;
+        this.h = rect.height;
+        this.canvas.width = rect.width * this.dpr;
+        this.canvas.height = rect.height * this.dpr;
+        this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
       }
 
-      get scaledLetterSpacing() {
-        if (this.size <= 64) return 0;
-        if (this.size <= 128) return P.letterSpacing * 0.5;
-        return P.letterSpacing;
-      }
-
-      rebuildGrid() {
-        const size = this.size;
-        const fs = this.scaledFontSize;
-        const ls = this.scaledLetterSpacing;
-
-        // Update container
-        this.el.style.width = size + 'px';
-        this.el.style.height = size + 'px';
-        // No border — circular text shape defines the form
-
-        // Measure widest character via Pretext
-        const measureFont = `${fs}px ${FONT}`;
-        let maxCharW = 0;
-        for (let i = 0; i < nameChars.length; i++) {
-          const w = measureCharWidth(nameChars[i], measureFont);
-          if (w > maxCharW) maxCharW = w;
+      _measureCells() {
+        const ctx = this.ctx;
+        const fs = DRIFT.fontSize;
+        ctx.font = `500 ${fs}px ${FONT}`;
+        let globalMaxCharW = 0;
+        for (const agent of AGENTS) {
+          for (const ch of agent.nameChars) {
+            const cw = ctx.measureText(ch).width;
+            if (cw > globalMaxCharW) globalMaxCharW = cw;
+          }
         }
-        const cellW = maxCharW + ls + 1;
-        const cellH = fs * 1.3;
-        const cols = Math.floor(size / cellW);
-        const rows = Math.floor(size / cellH);
+        this.cellW = globalMaxCharW + DRIFT.letterSpacing + 1;
+        this.cellH = fs * 1.3;
+      }
 
-        // Circle-based layout with edge falloff
-        const cx = size / 2, cy = size / 2;
-        const circleR = size * 0.46;
-        const falloff = size * 0.12;
-        const MIN_SCALE = 0.3;
+      _initAgents() {
+        const w = this.w;
+        const h = this.h;
 
-        const newCells = [];
+        this._measureCells();
 
-        // Center the grid on the circle center
-        const gridW = cols * cellW;
-        const gridH = rows * cellH;
-        const offsetX = (size - gridW) / 2 + cellW / 2;
-        const offsetY = (size - gridH) / 2 + cellH / 2;
+        // Spread agents across full viewport width
+        this.agents = AGENTS.map((a, i) => {
+          const seed = a.seed;
+          const depth = a.depth;
 
-        for (let row = 0; row < rows; row++) {
-          const y = offsetY + row * cellH;
-          for (let col = 0; col < cols; col++) {
-            const x = offsetX + col * cellW;
+          // Distribute across viewport with seeded variation
+          const xSpread = w * 0.8;
+          const xStart = w * 0.1;
+          const baseX = xStart + (i / (AGENTS.length - 1)) * xSpread;
+          const baseY = h * (0.3 + seededRandom(seed, 50) * 0.4);
 
-            const dx = x - cx, dy = y - cy;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist > circleR) continue;
+          // Soft cluster around center for entrance (not all at the same point)
+          const originAngle = seededRandom(seed, 70) * Math.PI * 2;
+          const originDist = 30 + seededRandom(seed, 71) * 60;
+          const originX = w / 2 + Math.cos(originAngle) * originDist;
+          const originY = h / 2 + Math.sin(originAngle) * originDist;
+          // Stagger: each agent starts its entrance at a slightly different time
+          const entranceDelay = i * 0.15;
 
-            // Edge falloff — scale down near the circle boundary
-            const distFromEdge = circleR - dist;
+          const vAngle = seededRandom(seed, 60) * Math.PI * 2;
+          const spd = DRIFT.speed * depth * (0.7 + seededRandom(seed, 61) * 0.6);
+
+          return {
+            ...a,
+            x: baseX,
+            y: baseY,
+            targetX: baseX,
+            targetY: baseY,
+            originX,
+            originY,
+            entranceDelay,
+            vx: Math.cos(vAngle) * spd,
+            vy: Math.sin(vAngle) * spd,
+          };
+        });
+      }
+
+      updatePhysics(dt) {
+        const w = this.w;
+        const h = this.h;
+        const pad = DRIFT.edgePad;
+        const baseR = DRIFT.radius;
+
+        // Smooth mouse radius in/out
+        const targetMouseR = this.mouseActive ? DRIFT.mouseRadius : 0;
+        this.mouseCurrentRadius += (targetMouseR - this.mouseCurrentRadius) * Math.min(1, dt * 6);
+
+        for (const a of this.agents) {
+          const r = baseR * a.depth;
+          const wobbleTime = performance.now() / 1000;
+          const wobbleX = Math.sin(wobbleTime * 0.3 + a.seed * 100) * 0.3;
+          const wobbleY = Math.cos(wobbleTime * 0.25 + a.seed * 200) * 0.3;
+
+          // Speed scales with depth
+          const spdFactor = DRIFT.speed * a.depth * (0.7 + seededRandom(a.seed, 61) * 0.6);
+          const vxDir = a.vx === 0 ? 1 : Math.sign(a.vx);
+          const vyDir = a.vy === 0 ? 1 : Math.sign(a.vy);
+          a.vx += (vxDir * spdFactor - a.vx) * 0.02;
+          a.vy += (vyDir * spdFactor - a.vy) * 0.02;
+
+          a.x += (a.vx + wobbleX) * dt;
+          a.y += (a.vy + wobbleY) * dt;
+
+          if (a.x - r < pad) { a.x = pad + r; a.vx = Math.abs(a.vx); }
+          if (a.x + r > w - pad) { a.x = w - pad - r; a.vx = -Math.abs(a.vx); }
+          if (a.y - r < pad) { a.y = pad + r; a.vy = Math.abs(a.vy); }
+          if (a.y + r > h - pad) { a.y = h - pad - r; a.vy = -Math.abs(a.vy); }
+        }
+      }
+
+      render(phase, entranceProg) {
+        const ctx = this.ctx;
+        const cellW = this.cellW;
+        const cellH = this.cellH;
+        const threshold = DRIFT.fieldThreshold;
+        const weightRange = P.maxW - P.minW;
+        const fs = DRIFT.fontSize;
+        const baseR = DRIFT.radius;
+        const fgColor = P.inverted ? '#0F0E0D' : '#FAFAF9';
+        const cx = this.w / 2;
+        const cy = this.h / 2;
+        const clearR = P.clearanceRadius;
+
+        // Apply scroll fade
+        ctx.clearRect(0, 0, this.w, this.h);
+        if (this.scrollOpacity <= 0) return;
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        const mouseR = this.mouseCurrentRadius;
+
+        // Build active agents list
+        const allAgents = [];
+        for (const a of this.agents) {
+          const r = baseR * a.depth;
+          let ax, ay;
+          // Per-agent staggered entrance
+          const agentProg = Math.max(0, Math.min(1, (entranceProg * DRIFT.entranceDuration - a.entranceDelay) / (DRIFT.entranceDuration - a.entranceDelay)));
+          if (agentProg < 1) {
+            const ease = 1 - Math.pow(1 - agentProg, 4);
+            ax = a.originX + (a.x - a.originX) * ease;
+            ay = a.originY + (a.y - a.originY) * ease;
+          } else {
+            ax = a.x;
+            ay = a.y;
+          }
+          allAgents.push({ ...a, ax, ay, r, rSq: r * r });
+        }
+
+        if (allAgents.length === 0) return;
+
+        // Bounding box union
+        const bulge = 1.5;
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        for (const a of allAgents) {
+          const br = a.r * bulge;
+          if (a.ax - br < minX) minX = a.ax - br;
+          if (a.ay - br < minY) minY = a.ay - br;
+          if (a.ax + br > maxX) maxX = a.ax + br;
+          if (a.ay + br > maxY) maxY = a.ay + br;
+        }
+
+        const startCol = Math.floor(minX / cellW);
+        const endCol = Math.ceil(maxX / cellW);
+        const startRow = Math.floor(minY / cellH);
+        const endRow = Math.ceil(maxY / cellH);
+
+        const draws = [];
+
+        for (let row = startRow; row <= endRow; row++) {
+          const py = row * cellH + cellH / 2;
+          for (let col = startCol; col <= endCol; col++) {
+            const px = col * cellW + cellW / 2;
+
+            // Clearance zone — suppress field near center
+            const cdx = px - cx, cdy = py - cy;
+            const cDist = Math.sqrt(cdx * cdx + cdy * cdy);
+            if (clearR > 0 && cDist < clearR) continue;
+            // Soft fade just outside clearance
+            let clearanceFade = 1;
+            const clearFadeZone = 60;
+            if (clearR > 0 && cDist < clearR + clearFadeZone) {
+              clearanceFade = (cDist - clearR) / clearFadeZone;
+              clearanceFade = clearanceFade * clearanceFade; // ease-in
+            }
+
+            let totalField = 0;
+            let dominantAgent = null;
+            let dominantField = 0;
+            let secondField = 0;
+            let secondAgent = null;
+
+            for (let i = 0; i < allAgents.length; i++) {
+              const a = allAgents[i];
+              const dx = px - a.ax, dy = py - a.ay;
+              const distSq = dx * dx + dy * dy;
+              if (distSq < 1) continue;
+              const f = a.rSq / distSq;
+              totalField += f;
+              if (f > dominantField) {
+                secondField = dominantField;
+                secondAgent = dominantAgent;
+                dominantField = f;
+                dominantAgent = a;
+              } else if (f > secondField) {
+                secondField = f;
+                secondAgent = a;
+              }
+            }
+
+            // Mouse negative field — dimples the blob surface
+            if (mouseR > 2) {
+              const mdx = px - this.mouseX, mdy = py - this.mouseY;
+              const mDistSq = mdx * mdx + mdy * mdy;
+              if (mDistSq > 1) {
+                totalField -= DRIFT.mouseFieldStrength * (mouseR * mouseR) / mDistSq;
+              }
+            }
+
+            if (totalField < threshold || !dominantAgent) continue;
+
+            // Edge falloff — smooth opacity ramp
+            const fieldExcess = totalField - threshold;
+            const falloffZone = threshold * 0.5;
             let scale = 1;
-            if (distFromEdge < falloff) {
-              const t = distFromEdge / falloff;
-              scale = MIN_SCALE + t * t * (1 - MIN_SCALE);
+            let edgeOpacity = 1;
+            if (fieldExcess < falloffZone) {
+              const t = fieldExcess / falloffZone;
+              scale = 0.3 + t * t * 0.7;
+              edgeOpacity = t; // smooth fade at boundary
             }
 
             const charSize = Math.round(fs * scale);
             if (charSize < 2) continue;
 
-            const rowOffset = Math.floor(row * nameChars.length * 0.618033);
-            const ci = (col + rowOffset) % nameChars.length;
+            const nx = (px - dominantAgent.ax) / (dominantAgent.r * 2) + 0.5;
+            const ny = (py - dominantAgent.ay) / (dominantAgent.r * 2) + 0.5;
 
-            const nx = x / size;
-            const ny = y / size;
+            const rowOffset = Math.floor(row * dominantAgent.nameChars.length * 0.618033);
+            const ci = ((col >= 0 ? col : -col) + rowOffset) % dominantAgent.nameChars.length;
+            const ch = dominantAgent.nameChars[ci];
 
-            newCells.push({ x, y, nx, ny, charSize, ci, cellW });
+            let n;
+            if (secondAgent && secondField / dominantField > 0.3) {
+              const blend = (secondField / dominantField - 0.3) / 0.7;
+              const nx2 = (px - secondAgent.ax) / (secondAgent.r * 2) + 0.5;
+              const ny2 = (py - secondAgent.ay) / (secondAgent.r * 2) + 0.5;
+              const b1 = getBrightness(nx, ny, phase, dominantAgent.layers);
+              const b2 = getBrightness(nx2, ny2, phase, secondAgent.layers);
+              n = b1 * (1 - blend) + b2 * blend;
+            } else {
+              n = getBrightness(nx, ny, phase, dominantAgent.layers);
+            }
+
+            let weight, opacity;
+            if (P.inverted) {
+              const inv = 1 - n;
+              weight = Math.min(P.maxW, Math.max(P.minW, Math.round((P.minW + inv * weightRange) / 100) * 100));
+              opacity = 0.2 + inv * 0.8;
+            } else {
+              weight = Math.min(P.maxW, Math.max(P.minW, Math.round((P.minW + n * weightRange) / 100) * 100));
+              opacity = 0.15 + n * 0.85;
+            }
+
+            // Apply depth dimming, edge fade, clearance fade, scroll fade
+            opacity *= dominantAgent.depth * edgeOpacity * clearanceFade * this.scrollOpacity;
+
+            if (opacity < 0.02) continue;
+
+            draws.push({ px, py, ch, charSize, weight, opacity });
           }
         }
 
-        // Grow or shrink span pool
-        while (this.spans.length < newCells.length) {
-          const span = document.createElement('span');
-          span.className = 'viz-char';
-          this.el.appendChild(span);
-          this.spans.push(span);
-        }
-        for (let i = newCells.length; i < this.spans.length; i++) {
-          this.spans[i].style.display = 'none';
-        }
+        draws.sort((a, b) => (a.weight * 100 + a.charSize) - (b.weight * 100 + b.charSize));
 
-        // Position spans
-        for (let i = 0; i < newCells.length; i++) {
-          const cell = newCells[i];
-          const span = this.spans[i];
-          span.style.display = '';
-          span.style.left = (cell.x - cell.cellW / 2) + 'px';
-          span.style.top = (cell.y - cell.charSize / 2) + 'px';
-          span.style.width = cell.cellW + 'px';
-          span.style.fontSize = cell.charSize + 'px';
-          span.textContent = nameChars[cell.ci];
-          cell.span = span;
-        }
-
-        this.gridCells = newCells;
-        this.needsRebuild = false;
-        this.lastLayoutKey = this.layoutKey;
-      }
-
-      get layoutKey() {
-        return `${this.size}_${P.fontSize}_${P.letterSpacing}_${P.borderRadius}_${P.chars}`;
-      }
-
-      render(phase) {
-        if (nameChars.length === 0) return;
-
-        if (this.needsRebuild || this.layoutKey !== this.lastLayoutKey) {
-          this.rebuildGrid();
-        }
-
-        const weightRange = P.maxW - P.minW;
-
-        for (let i = 0; i < this.gridCells.length; i++) {
-          const cell = this.gridCells[i];
-          const n = getBrightness(cell.nx, cell.ny, phase);
-
-          let weight, opacity;
-          if (P.inverted) {
-            // Inverted: flip brightness so wave reads as shadow/depth
-            const inv = 1 - n;
-            weight = Math.min(P.maxW, Math.max(P.minW, Math.round((P.minW + inv * weightRange) / 50) * 50));
-            opacity = 0.2 + inv * 0.8; // linear, floor at 0.2 so quiet chars stay visible
-          } else {
-            weight = Math.min(P.maxW, Math.max(P.minW, Math.round((P.minW + n * weightRange) / 50) * 50));
-            opacity = 0.15 + n * 0.85;
+        let lastFont = '';
+        for (let i = 0; i < draws.length; i++) {
+          const d = draws[i];
+          const fontStr = `${d.weight} ${d.charSize}px ${FONT}`;
+          if (fontStr !== lastFont) {
+            ctx.font = fontStr;
+            lastFont = fontStr;
           }
-
-          cell.span.style.fontWeight = weight;
-          cell.span.style.opacity = opacity;
+          ctx.globalAlpha = d.opacity;
+          ctx.fillStyle = fgColor;
+          ctx.fillText(d.ch, d.px, d.py);
         }
-      }
 
-      flagRebuild() {
-        this.needsRebuild = true;
+        ctx.globalAlpha = 1;
       }
     }
 
     // ══════════════════════════════════════
-    // Create instances
+    // Init
     // ══════════════════════════════════════
-    const stage = document.getElementById('stage');
-    const instances = SIZES.map(size => new VizInstance(size, stage));
+    const hero = document.getElementById('hero');
+    const drift = new DriftMode(hero);
 
     // ══════════════════════════════════════
-    // Apply a name — derives all animation params
+    // Panel toggle
     // ══════════════════════════════════════
-    function applyName(name, label) {
-      P.chars = name;
-      nameChars = name.replace(/\s/g, '').split('');
-      layers = buildLayers(name);
-      const charEl = document.getElementById('charInput');
-      if (charEl) charEl.value = name;
-      document.getElementById('stageLabel').textContent = label || name;
-      instances.forEach(inst => inst.flagRebuild());
-    }
+    const panelEl = document.querySelector('.panel');
+    document.getElementById('panelToggle').addEventListener('click', () => {
+      panelEl.classList.toggle('collapsed');
+    });
 
     // ══════════════════════════════════════
     // Controls
     // ══════════════════════════════════════
-    function bind(id, key, fmt) {
+    function bindDrift(id, key, fmt) {
       const el = document.getElementById(id);
       const val = document.getElementById(id + 'Val');
       el.addEventListener('input', () => {
-        P[key] = +el.value;
-        if (val) val.textContent = fmt ? fmt(el.value) : el.value;
-        instances.forEach(inst => inst.flagRebuild());
+        DRIFT[key] = +el.value;
+        if (val) val.textContent = fmt ? fmt(+el.value) : el.value;
+        drift._measureCells();
       });
     }
 
-    // Typography and container controls removed — using fixed defaults
+    bindDrift('radius', 'radius');
+    bindDrift('speed', 'speed');
+    bindDrift('fontSize', 'fontSize');
+    bindDrift('threshold', 'fieldThreshold', v => v.toFixed(2));
 
-    // charInput removed — characters set by presets only
+    const waveEl = document.getElementById('waveSpeed');
+    const waveVal = document.getElementById('waveSpeedVal');
+    waveEl.addEventListener('input', () => {
+      P.waveSpeed = +waveEl.value;
+      waveVal.textContent = waveEl.value;
+    });
+
+    const clearEl = document.getElementById('clearance');
+    const clearVal = document.getElementById('clearanceVal');
+    clearEl.addEventListener('input', () => {
+      P.clearanceRadius = +clearEl.value;
+      clearVal.textContent = clearEl.value;
+    });
 
     document.getElementById('invertRow').addEventListener('click', () => {
       P.inverted = !P.inverted;
-      document.getElementById('stage').classList.toggle('inverted', P.inverted);
+      hero.classList.toggle('inverted', P.inverted);
       document.getElementById('invertTrack').classList.toggle('on', P.inverted);
     });
 
@@ -394,43 +686,43 @@
     });
 
     // ══════════════════════════════════════
-    // Presets
+    // Animation loop
     // ══════════════════════════════════════
-    const presetData = [
-      { label: 'Ingest data room', chars: 'Ingest data room' },
-      { label: 'Extract key terms', chars: 'Extract key terms' },
-      { label: 'Flag regulatory triggers', chars: 'Flag regulatory triggers' },
-      { label: 'Cross-ref precedent', chars: 'Cross-reference precedent' },
-      { label: 'Draft red flag report', chars: 'Draft red flag report' },
-      { label: 'Diligence Agent (LH)', chars: 'Ingest data room Extract key terms Flag regulatory triggers Cross-reference precedent Draft red flag report' },
-    ];
-
-    const presetsEl = document.getElementById('presets');
-    presetData.forEach(p => {
-      const btn = document.createElement('button');
-      btn.className = 'preset-btn';
-      btn.textContent = p.label;
-      btn.addEventListener('click', () => applyName(p.chars, p.label));
-      presetsEl.appendChild(btn);
-    });
-
-    // ══════════════════════════════════════
-    // Init + Animation loop
-    // ══════════════════════════════════════
-    applyName(P.chars);
-
     let t0 = null;
+    let lastTimestamp = null;
+    let wasHidden = false;
+
     function loop(timestamp) {
+      // Handle returning from hidden tab
+      if (wasHidden) {
+        lastTimestamp = timestamp;
+        wasHidden = false;
+        P.paused = false;
+        document.getElementById('pauseTrack').classList.remove('on');
+      }
+
       if (t0 === null) t0 = timestamp;
+      if (lastTimestamp === null) lastTimestamp = timestamp;
+      const dt = Math.min((timestamp - lastTimestamp) / 1000, 0.05);
+      lastTimestamp = timestamp;
+
       if (!P.paused) {
+        // Entrance animation
+        const elapsed = (timestamp - t0) / 1000;
+        const entranceProg = Math.min(1, elapsed / DRIFT.entranceDuration);
+
         const timeMs = timestamp - t0;
-        const phase = (timeMs / 1000) * (P.speed / 10);
-        for (let i = 0; i < instances.length; i++) {
-          instances[i].render(phase);
-        }
+        const phase = (timeMs / 1000) * (P.waveSpeed / 10);
+        drift.updatePhysics(dt);
+        drift.render(phase, entranceProg);
       }
       requestAnimationFrame(loop);
     }
+
+    // Visibility API — mark hidden so we can gracefully resume
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) wasHidden = true;
+    });
 
     Promise.race([
       document.fonts.ready,
